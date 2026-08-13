@@ -29,10 +29,12 @@ public class TaskStatusHistoryConfiguration : IEntityTypeConfiguration<TaskStatu
 
         builder.HasOne<TaskEntity>()
             .WithMany()
-            .HasForeignKey(history => history.TaskId);
+            .HasForeignKey(history => history.TaskId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne<UserEntity>()
             .WithMany()
-            .HasForeignKey(history => history.ChangedByUserId);
+            .HasForeignKey(history => history.ChangedByUserId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

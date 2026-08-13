@@ -42,6 +42,7 @@ public class TaskConfiguration : IEntityTypeConfiguration<TaskEntity>
 
         builder.HasOne<UserEntity>()
             .WithMany()
-            .HasForeignKey(task => task.UserId);
+            .HasForeignKey(task => task.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
