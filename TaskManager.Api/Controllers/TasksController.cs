@@ -16,19 +16,29 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskResponseDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<TaskResponseDto>>> GetAll(
+        [FromQuery] TaskFilterDto filter,
+        CancellationToken cancellationToken)
     {
-        var tasks = await _taskService.GetAllAsync(cancellationToken);
+        var result = await _taskService.GetAllAsync(
+            filter,
+            cancellationToken);
 
-        return Ok(tasks);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<TaskResponseDto>> GetById(int id, CancellationToken cancellationToken)
+    public async Task<ActionResult<TaskResponseDto>> GetById(
+        int id,
+        CancellationToken cancellationToken)
     {
-        var task = await _taskService.GetByIdAsync(id, cancellationToken);
+        var task = await _taskService.GetByIdAsync(
+            id,
+            cancellationToken);
 
-        return task is null ? NotFound() : Ok(task);
+        return task is null
+            ? NotFound()
+            : Ok(task);
     }
 
     [HttpPost]
@@ -36,14 +46,19 @@ public class TasksController : ControllerBase
         CreateTaskDto createTaskDto,
         CancellationToken cancellationToken)
     {
-        var task = await _taskService.CreateAsync(createTaskDto, cancellationToken);
+        var task = await _taskService.CreateAsync(
+            createTaskDto,
+            cancellationToken);
 
         if (task is null)
         {
             return BadRequest();
         }
 
-        return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = task.Id },
+            task);
     }
 
     [HttpPut("{id:int}")]
@@ -52,23 +67,27 @@ public class TasksController : ControllerBase
         UpdateTaskDto updateTaskDto,
         CancellationToken cancellationToken)
     {
-        var task = await _taskService.UpdateAsync(id, updateTaskDto, cancellationToken);
+        var task = await _taskService.UpdateAsync(
+            id,
+            updateTaskDto,
+            cancellationToken);
 
-        return task is null ? NotFound() : Ok(task);
+        return task is null
+            ? NotFound()
+            : Ok(task);
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(
+        int id,
+        CancellationToken cancellationToken)
     {
-        var task = await _taskService.GetByIdAsync(id, cancellationToken);
+        var deleted = await _taskService.DeleteAsync(
+            id,
+            cancellationToken);
 
-        if (task is null)
-        {
-            return NotFound();
-        }
-
-        await _taskService.DeleteAsync(id, cancellationToken);
-
-        return NoContent();
+        return deleted
+            ? NoContent()
+            : NotFound();
     }
 }

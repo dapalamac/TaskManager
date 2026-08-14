@@ -1,28 +1,26 @@
 using System.ComponentModel.DataAnnotations;
-using TaskPriority = TaskManager.Domain.Enums.TaskPriority;
+using TaskManager.Domain.Enums;
 using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
 
 namespace TaskManager.Application.DTOs;
 
 public class UpdateTaskDto
 {
-    [Required]
-    [StringLength(200)]
-    public required string Title { get; set; }
+    [Required(ErrorMessage = "El título es obligatorio.")]
+    [MaxLength(200, ErrorMessage = "El título no puede superar los 200 caracteres.")]
+    public string Title { get; set; } = string.Empty;
 
-    [StringLength(1000)]
+    [MaxLength(500, ErrorMessage = "La descripción no puede superar los 500 caracteres.")]
     public string? Description { get; set; }
 
-    [EnumDataType(typeof(TaskPriority))]
     public TaskPriority Priority { get; set; }
 
-    [EnumDataType(typeof(TaskStatus))]
     public TaskStatus Status { get; set; }
 
     public DateTime? StartDate { get; set; }
 
     public DateTime? DueDate { get; set; }
 
-    [Range(1, int.MaxValue)]
+    [Required(ErrorMessage = "El usuario responsable es obligatorio.")]
     public int UserId { get; set; }
 }

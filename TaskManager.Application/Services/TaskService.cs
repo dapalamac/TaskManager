@@ -1,7 +1,9 @@
 using TaskManager.Application.DTOs;
+using TaskManager.Application.Exceptions;
 using TaskManager.Application.Interfaces;
 using TaskEntity = TaskManager.Domain.Entities.Task;
 using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
+
 
 namespace TaskManager.Application.Services;
 
@@ -39,6 +41,26 @@ public class TaskService : ITaskService
         CreateTaskDto createTaskDto,
         CancellationToken cancellationToken)
     {
+
+        if (createTaskDto.DueDate.HasValue &&
+        createTaskDto.DueDate.Value.Date < DateTime.UtcNow.Date)
+        {
+            throw new BusinessException(
+                "La fecha límite no puede ser menor a hoy.");
+        }
+
+        var duplicated = await _taskRepository.ExistsByTitleAndUserIdAsync(
+            createTaskDto.Title,
+            createTaskDto.UserId,
+            null,
+            cancellationToken);
+
+        if (duplicated)
+        {
+            throw new BusinessException(
+                "Ya existe una tarea con el mismo título para este usuario.");
+        }
+
         var user = await _userRepository.GetByIdAsync(createTaskDto.UserId, cancellationToken);
 
         if (user is null)
@@ -79,6 +101,19 @@ public class TaskService : ITaskService
         UpdateTaskDto updateTaskDto,
         CancellationToken cancellationToken)
     {
+
+        var duplicated = await _taskRepository.ExistsByTitleAndUserIdAsync(
+                updateTaskDto.Title,
+                updateTaskDto.UserId,
+                id,
+                cancellationToken);
+
+        if (duplicated)
+        {
+            throw new BusinessException(
+                "Ya existe una tarea con el mismo título para este usuario.");
+        }
+
         var task = await _taskRepository.GetByIdAsync(id, cancellationToken);
 
         if (task is null)
@@ -142,5 +177,40 @@ public class TaskService : ITaskService
             Status = task.Status,
             UserId = task.UserId
         };
+    }
+
+    public async Task<PagedResultDto<TaskResponseDto>> GetAllAsync(
+     TaskFilterDto filter,
+     CancellationToken cancellationToken)
+    {
+        var page = filter.Page < 1 ? 1 : filter.Page;
+
+        var pageSize = filter.PageSize < 1
+            ? 20
+            : Math.Min(filter.PageSize, 100);
+
+        filter.Page = page;
+        filter.PageSize = pageSize;
+
+        var result = await _taskRepository.GetPagedAsync(
+            filter,
+            cancellationToken);
+
+        var totalPages = (int)Math.Ceiling(
+            result.TotalItems / (double)pageSize);
+
+        return new PagedResultDto<TaskResponseDto>
+        {
+            Items = result.Items.Select(MapToResponseDto),
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = totalPages
+        };
+    }
+
+    Task<bool> ITaskService.DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }
