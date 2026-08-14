@@ -1,0 +1,234 @@
+<div class="form-page">
+
+  <div class="form-header">
+
+    <div>
+      <h1>
+        {{ isEditMode ? 'Editar tarea' : 'Nueva tarea' }}
+      </h1>
+
+      <p>
+        {{ isEditMode
+          ? 'Actualiza la información de la tarea'
+          : 'Crea una nueva tarea para el equipo'
+        }}
+      </p>
+    </div>
+
+  </div>
+
+  <form
+    [formGroup]="taskForm"
+    (ngSubmit)="save()">
+
+    <div class="form-grid">
+
+      <!-- Título -->
+      <div class="form-group full-width">
+
+        <label for="title">
+          Título *
+        </label>
+
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Ingrese el título de la tarea">
+
+        <div
+          class="error"
+          *ngIf="title?.touched && title?.hasError('required')">
+
+          El título es obligatorio.
+
+        </div>
+
+        <div
+          class="error"
+          *ngIf="title?.touched && title?.hasError('maxlength')">
+
+          El título no puede superar los 200 caracteres.
+
+        </div>
+
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group full-width">
+
+        <label for="description">
+          Descripción
+        </label>
+
+        <textarea
+          id="description"
+          rows="4"
+          formControlName="description"
+          placeholder="Ingrese la descripción">
+        </textarea>
+
+        <div
+          class="error"
+          *ngIf="description?.touched && description?.hasError('maxlength')">
+
+          La descripción no puede superar los 500 caracteres.
+
+        </div>
+
+      </div>
+
+      <!-- Prioridad -->
+      <div class="form-group">
+
+        <label for="priority">
+          Prioridad *
+        </label>
+
+        <select
+          id="priority"
+          formControlName="priority">
+
+          <option [ngValue]="0">
+            Baja
+          </option>
+
+          <option [ngValue]="1">
+            Media
+          </option>
+
+          <option [ngValue]="2">
+            Alta
+          </option>
+
+        </select>
+
+      </div>
+
+      <!-- Estatus -->
+      <div class="form-group">
+
+        <label for="status">
+          Estatus *
+        </label>
+
+        <select
+          id="status"
+          formControlName="status">
+
+          <option [ngValue]="0">
+            Pendiente
+          </option>
+
+          <option [ngValue]="1">
+            En progreso
+          </option>
+
+          <option [ngValue]="2">
+            Terminada
+          </option>
+
+        </select>
+
+      </div>
+
+      <!-- Usuario -->
+      <div class="form-group">
+
+        <label for="userId">
+          Usuario responsable *
+        </label>
+
+        <select
+          id="userId"
+          formControlName="userId">
+
+          <option [ngValue]="null">
+            Seleccione un usuario
+          </option>
+
+          <option
+            *ngFor="let user of users"
+            [ngValue]="user.id">
+
+            {{ user.name }}
+
+          </option>
+
+        </select>
+
+        <div
+          class="error"
+          *ngIf="userId?.touched && userId?.hasError('required')">
+
+          Debe seleccionar un usuario.
+
+        </div>
+
+      </div>
+
+      <!-- Fecha inicio -->
+      <div class="form-group">
+
+        <label for="startDate">
+          Fecha de inicio
+        </label>
+
+        <input
+          id="startDate"
+          type="datetime-local"
+          formControlName="startDate">
+
+      </div>
+
+      <!-- Fecha límite -->
+      <div class="form-group">
+
+        <label for="dueDate">
+          Fecha límite *
+        </label>
+
+        <input
+          id="dueDate"
+          type="datetime-local"
+          formControlName="dueDate">
+
+        <div
+          class="error"
+          *ngIf="dueDate?.touched && dueDate?.hasError('required')">
+
+          La fecha límite es obligatoria.
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Acciones -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="cancel()">
+
+        Cancelar
+
+      </button>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="taskForm.invalid || saving">
+
+        {{ saving ? 'Guardando...' : 'Guardar' }}
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

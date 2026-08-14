@@ -1,0 +1,86 @@
+<div class="reports-page">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Reportes</h1>
+
+      <p>
+        Resumen de tareas pendientes y vencidas
+      </p>
+    </div>
+    
+      <button
+    class="btn-secondary"
+    routerLink="/tasks">
+
+    Volver a tareas
+
+</button>
+  </div>
+
+
+
+  <div
+    class="loading"
+    *ngIf="loading">
+
+    Cargando...
+
+  </div>
+
+  <div
+    class="table-container"
+    *ngIf="!loading">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Usuario</th>
+          <th>Tareas pendientes</th>
+          <th>Tareas vencidas</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let report of reports">
+
+          <td>
+            <strong>
+              {{ report.userName }}
+            </strong>
+          </td>
+
+          <td>
+            {{ report.totalPending }}
+          </td>
+
+          <td>
+            {{ report.totalOverdue }}
+          </td>
+
+        </tr>
+
+        <tr *ngIf="reports.length === 0">
+
+          <td
+            colspan="3"
+            class="empty">
+
+            No hay información disponible.
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>

@@ -1,0 +1,249 @@
+<div class="tasks-page">
+
+<div class="page-header">
+
+  <div>
+    <h1>Task Manager</h1>
+    <p>Administración de tareas del equipo</p>
+  </div>
+
+  <div class="header-actions">
+
+    <button
+      class="btn-secondary"
+      routerLink="/reports">
+
+      Reportes
+
+    </button>
+
+    <button
+      class="btn-primary"
+      routerLink="/tasks/new">
+
+      Nueva tarea
+
+    </button>
+
+  </div>
+
+</div>
+
+  <!-- Filtros -->
+  <section class="filters">
+
+    <div class="filter-group">
+      <label>Prioridad</label>
+
+      <select
+        [(ngModel)]="filter.priority"
+        (change)="applyFilters()">
+
+        <option [ngValue]="undefined">
+          Todas
+        </option>
+
+        <option [ngValue]="0">
+          Baja
+        </option>
+
+        <option [ngValue]="1">
+          Media
+        </option>
+
+        <option [ngValue]="2">
+          Alta
+        </option>
+
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Estatus</label>
+
+      <select
+        [(ngModel)]="filter.status"
+        (change)="applyFilters()">
+
+        <option [ngValue]="undefined">
+          Todos
+        </option>
+
+        <option [ngValue]="0">
+          Pendiente
+        </option>
+
+        <option [ngValue]="1">
+          En progreso
+        </option>
+
+        <option [ngValue]="2">
+          Terminada
+        </option>
+
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Usuario</label>
+
+      <select
+        [(ngModel)]="filter.userId"
+        (change)="applyFilters()">
+
+        <option [ngValue]="undefined">
+          Todos
+        </option>
+
+        <option
+          *ngFor="let user of users"
+          [ngValue]="user.id">
+
+          {{ user.name }}
+
+        </option>
+
+      </select>
+    </div>
+
+  </section>
+
+  <!-- Loading -->
+  <div
+    class="loading"
+    *ngIf="loading">
+
+    Cargando...
+
+  </div>
+
+  <!-- Tabla -->
+  <div
+    class="table-container"
+    *ngIf="!loading">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Título</th>
+          <th>Prioridad</th>
+          <th>Responsable</th>
+          <th>Estatus</th>
+          <th>Fecha límite</th>
+          <th>Acciones</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let task of tasks">
+
+          <td>
+            <strong>
+              {{ task.title }}
+            </strong>
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [class.priority-low]="task.priority === 0"
+              [class.priority-medium]="task.priority === 1"
+              [class.priority-high]="task.priority === 2">
+
+              {{ getPriorityName(task.priority) }}
+
+            </span>
+          </td>
+
+          <td>
+            {{ getUserName(task.userId) }}
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [class.status-pending]="task.status === 0"
+              [class.status-progress]="task.status === 1"
+              [class.status-completed]="task.status === 2">
+
+              {{ getStatusName(task.status) }}
+
+            </span>
+          </td>
+
+          <td>
+            {{ task.dueDate | date:'dd/MM/yyyy' }}
+          </td>
+
+          <td>
+
+            <button
+                class="btn-edit"
+                [routerLink]="['/tasks/edit', task.id]">
+
+                Editar
+
+            </button>
+
+           <button
+            class="btn-delete"
+            (click)="deleteTask(task.id)">
+
+            Eliminar
+
+            </button>
+
+          </td>
+
+        </tr>
+
+        <tr *ngIf="tasks.length === 0">
+
+          <td
+            colspan="6"
+            class="empty">
+
+            No hay tareas para mostrar.
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- Paginación -->
+  <div
+    class="pagination"
+    *ngIf="!loading && totalPages > 0">
+
+    <button
+      [disabled]="page <= 1"
+      (click)="previousPage()">
+
+      Anterior
+
+    </button>
+
+    <span>
+      Página {{ page }} de {{ totalPages }}
+    </span>
+
+    <button
+      [disabled]="page >= totalPages"
+      (click)="nextPage()">
+
+      Siguiente
+
+    </button>
+
+  </div>
+
+</div>

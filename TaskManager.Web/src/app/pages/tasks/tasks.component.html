@@ -1,0 +1,153 @@
+<div class="tasks-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Task Manager</h1>
+      <p>Administración de tareas del equipo</p>
+    </div>
+
+    <button class="btn-primary">
+      Nueva tarea
+    </button>
+  </div>
+
+  <section class="filters">
+
+    <div class="filter-group">
+      <label>Prioridad</label>
+
+      <select>
+        <option value="">Todas</option>
+        <option value="0">Baja</option>
+        <option value="1">Media</option>
+        <option value="2">Alta</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Estatus</label>
+
+      <select>
+        <option value="">Todos</option>
+        <option value="0">Pendiente</option>
+        <option value="1">En progreso</option>
+        <option value="2">Terminada</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Usuario</label>
+
+      <select>
+        <option value="">Todos</option>
+
+        <option
+          *ngFor="let user of users"
+          [value]="user.id">
+          {{ user.name }}
+        </option>
+      </select>
+    </div>
+
+  </section>
+
+  <div
+    class="loading"
+    *ngIf="loading">
+
+    Cargando...
+
+  </div>
+
+  <div
+    class="table-container"
+    *ngIf="!loading">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Prioridad</th>
+          <th>Responsable</th>
+          <th>Estatus</th>
+          <th>Fecha límite</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let task of tasks">
+
+          <td>
+            {{ task.title }}
+          </td>
+
+          <td>
+            {{ task.priority }}
+          </td>
+
+          <td>
+            {{ getUserName(task.userId) }}
+          </td>
+
+          <td>
+            {{ task.status }}
+          </td>
+
+          <td>
+            {{ task.dueDate | date:'dd/MM/yyyy' }}
+          </td>
+
+          <td>
+            <button class="btn-edit">
+              Editar
+            </button>
+
+            <button class="btn-delete">
+              Eliminar
+            </button>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="tasks.length === 0">
+
+          <td colspan="6" class="empty">
+            No hay tareas para mostrar.
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <div class="pagination">
+
+    <button
+      [disabled]="page <= 1"
+      (click)="page = page - 1; loadTasks()">
+
+      Anterior
+
+    </button>
+
+    <span>
+      Página {{ page }} de {{ totalPages }}
+    </span>
+
+    <button
+      [disabled]="page >= totalPages"
+      (click)="page = page + 1; loadTasks()">
+
+      Siguiente
+
+    </button>
+
+  </div>
+
+</div>

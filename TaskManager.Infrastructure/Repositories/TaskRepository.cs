@@ -43,14 +43,26 @@ public class TaskRepository : ITaskRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(
+    int id,
+    CancellationToken cancellationToken)
     {
-        var task = await _context.Tasks.FindAsync([id], cancellationToken);
+        var task = await _context.Tasks.FindAsync(
+            [id],
+            cancellationToken);
 
         if (task is not null)
         {
+            var histories = await _context.TaskStatusHistories
+                .Where(h => h.TaskId == id)
+                .ToListAsync(cancellationToken);
+
+            _context.TaskStatusHistories.RemoveRange(histories);
+
             _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync(cancellationToken);
+
+            await _context.SaveChangesAsync(
+                cancellationToken);
         }
     }
 

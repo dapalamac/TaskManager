@@ -157,9 +157,25 @@ public class TaskService : ITaskService
         return MapToResponseDto(task);
     }
 
-    public Task DeleteAsync(int id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(
+    int id,
+    CancellationToken cancellationToken)
     {
-        return _taskRepository.DeleteAsync(id, cancellationToken);
+        var task = await _taskRepository.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        if (task is null)
+        {
+            throw new NotFoundException(
+                $"No se encontró la tarea con Id {id}.");
+        }
+
+        await _taskRepository.DeleteAsync(
+            id,
+            cancellationToken);
+
+        return true;
     }
 
     private static TaskResponseDto MapToResponseDto(TaskEntity task)
@@ -209,8 +225,4 @@ public class TaskService : ITaskService
         };
     }
 
-    Task<bool> ITaskService.DeleteAsync(int id, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
 }

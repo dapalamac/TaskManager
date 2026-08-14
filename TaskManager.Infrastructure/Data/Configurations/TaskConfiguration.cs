@@ -11,6 +11,9 @@ public class TaskConfiguration : IEntityTypeConfiguration<TaskEntity>
     {
         builder.HasKey(task => task.Id);
 
+        builder.ToTable("Tasks", table =>
+            table.UseSqlOutputClause(false));
+
         builder.Property(task => task.Title)
             .IsRequired()
             .HasMaxLength(200);
