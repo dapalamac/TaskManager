@@ -1,3 +1,4 @@
+using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using UserEntity = TaskManager.Domain.Entities.User;
 
@@ -22,13 +23,32 @@ public class UserService : IUserService
         return _userRepository.GetAllAsync(cancellationToken);
     }
 
-    public Task<UserEntity> CreateAsync(UserEntity user, CancellationToken cancellationToken)
+    public Task<UserEntity> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
     {
+        var user = new UserEntity
+        {
+            Name = createUserDto.Name,
+            Email = createUserDto.Email
+        };
+
         return _userRepository.CreateAsync(user, cancellationToken);
     }
 
-    public Task UpdateAsync(UserEntity user, CancellationToken cancellationToken)
+    public async Task UpdateAsync(
+        int id,
+        UpdateUserDto updateUserDto,
+        CancellationToken cancellationToken)
     {
-        return _userRepository.UpdateAsync(user, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.Name = updateUserDto.Name;
+        user.Email = updateUserDto.Email;
+
+        await _userRepository.UpdateAsync(user, cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using TaskStatusHistoryEntity = TaskManager.Domain.Entities.TaskStatusHistory;
 
@@ -12,11 +13,22 @@ public class TaskStatusHistoryService : ITaskStatusHistoryService
         _taskStatusHistoryRepository = taskStatusHistoryRepository;
     }
 
-    public Task<IEnumerable<TaskStatusHistoryEntity>> GetByTaskIdAsync(
+    public async Task<IEnumerable<TaskStatusHistoryResponseDto>> GetByTaskIdAsync(
         int taskId,
         CancellationToken cancellationToken)
     {
-        return _taskStatusHistoryRepository.GetByTaskIdAsync(taskId, cancellationToken);
+        var history = await _taskStatusHistoryRepository.GetByTaskIdAsync(
+            taskId,
+            cancellationToken);
+
+        return history.Select(item => new TaskStatusHistoryResponseDto
+        {
+            TaskId = item.TaskId,
+            OldStatus = item.OldStatus,
+            NewStatus = item.NewStatus,
+            ChangedAt = item.ChangedAt,
+            ChangedByUserId = item.ChangedByUserId
+        });
     }
 
     public Task<TaskStatusHistoryEntity> CreateAsync(

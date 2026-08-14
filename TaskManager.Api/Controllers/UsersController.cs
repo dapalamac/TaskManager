@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using UserEntity = TaskManager.Domain.Entities.User;
 
@@ -32,21 +33,21 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserEntity>> Create(UserEntity user, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserEntity>> Create(
+        CreateUserDto createUserDto,
+        CancellationToken cancellationToken)
     {
-        var createdUser = await _userService.CreateAsync(user, cancellationToken);
+        var createdUser = await _userService.CreateAsync(createUserDto, cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> Update(int id, UserEntity user, CancellationToken cancellationToken)
+    public async Task<ActionResult> Update(
+        int id,
+        UpdateUserDto updateUserDto,
+        CancellationToken cancellationToken)
     {
-        if (id != user.Id)
-        {
-            return BadRequest();
-        }
-
         var existingUser = await _userService.GetByIdAsync(id, cancellationToken);
 
         if (existingUser is null)
@@ -54,7 +55,7 @@ public class UsersController : ControllerBase
             return NotFound();
         }
 
-        await _userService.UpdateAsync(user, cancellationToken);
+        await _userService.UpdateAsync(id, updateUserDto, cancellationToken);
 
         return Ok();
     }

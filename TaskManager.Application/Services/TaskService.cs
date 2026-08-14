@@ -93,14 +93,31 @@ public class TaskService : ITaskService
             return null;
         }
 
+        var previousStatus = task.Status;
+
         task.Title = updateTaskDto.Title;
         task.Description = updateTaskDto.Description;
         task.Priority = updateTaskDto.Priority;
+        task.Status = updateTaskDto.Status;
         task.StartDate = updateTaskDto.StartDate;
         task.DueDate = updateTaskDto.DueDate;
         task.UserId = updateTaskDto.UserId;
 
         await _taskRepository.UpdateAsync(task, cancellationToken);
+
+        if (previousStatus != task.Status)
+        {
+            await _taskStatusHistoryRepository.CreateAsync(
+                new()
+                {
+                    TaskId = task.Id,
+                    OldStatus = previousStatus,
+                    NewStatus = task.Status,
+                    ChangedAt = DateTime.UtcNow,
+                    ChangedByUserId = task.UserId
+                },
+                cancellationToken);
+        }
 
         return MapToResponseDto(task);
     }
